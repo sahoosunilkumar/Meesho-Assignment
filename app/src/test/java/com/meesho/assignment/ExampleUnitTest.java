@@ -1,4 +1,4 @@
-package assignment.meesho.com.meeshoassignment;
+package com.meesho.assignment;
 
 import org.junit.Test;
 

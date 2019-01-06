@@ -1,4 +1,4 @@
-package assignment.meesho.com.meeshoassignment;
+package com.meesho.assignment;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

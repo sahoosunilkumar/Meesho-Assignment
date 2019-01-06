@@ -1,4 +1,4 @@
-package assignment.meesho.com.meeshoassignment;
+package com.meesho.assignment;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("assignment.meesho.com.meeshoassignment", appContext.getPackageName());
+        assertEquals("com.meesho.assignment", appContext.getPackageName());
     }
 }

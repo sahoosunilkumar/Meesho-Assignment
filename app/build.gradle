@@ -1,28 +1,147 @@
 apply plugin: 'com.android.application'
-
+apply plugin: 'kotlin-android'
+apply from: 'jacoco.gradle'
+apply plugin: 'kotlin-kapt'
 android {
-    compileSdkVersion 28
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+    dataBinding {
+        enabled = true
+    }
+
+    dexOptions {
+        javaMaxHeapSize = "4g"
+    }
+
+    kapt {
+        generateStubs = true
+    }
+
     defaultConfig {
-        applicationId "assignment.meesho.com.meeshoassignment"
-        minSdkVersion 16
-        targetSdkVersion 28
+        applicationId "com.meesho.assignment"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+        archivesBaseName = "MeeshoAssignment"
     }
-    buildTypes {
+
+    sourceSets {
+        debug {
+            res.srcDirs = ['src/debug/res']
+        }
+
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            res.srcDirs = ['src/release/res']
         }
     }
-}
 
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    signingConfigs {
+        release {
+            storeFile file("$project.rootDir/meesho.keystore")
+            storePassword "meesho123"
+            keyAlias "meesho"
+            keyPassword "meesho123"
+        }
+
+        debug {
+            storeFile file("$project.rootDir/meesho.keystore")
+            storePassword "meesho123"
+            keyAlias "meesho"
+            keyPassword "meesho123"
+        }
+    }
+
+    buildTypes {
+        release {
+            buildConfigField 'String', "GithubClientId", Github_Client_Id
+            buildConfigField 'String', "GithubClientSecret", Github_Client_Secret
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+            android.applicationVariants.all { variant ->
+                variant.outputs.all {
+                    outputFileName = "${archivesBaseName}-${variant.name}-${variant.versionName}.apk"
+                }
+            }
+        }
+
+        debug {
+            buildConfigField 'String', "GithubClientId", Github_Client_Id
+            buildConfigField 'String', "GithubClientSecret", Github_Client_Secret
+            testCoverageEnabled false
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
+        }
+    }
+    //to skip unit test in release mode
+    gradle.taskGraph.useFilter { task ->
+        if (task.name.startsWith("test") && task.name.contains("ReleaseUnitTest")) {
+            return false
+        }
+
+        return true
+    }
+
+    lintOptions {
+        abortOnError false
+        disable 'InvalidPackage'
+        checkReleaseBuilds false
+    }
+
+    testOptions.unitTests.includeAndroidResources true
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+
+    dependencies {
+        implementation fileTree(dir: 'libs', include: ['*.jar'])
+        implementation "android.arch.lifecycle:extensions:1.1.1"
+
+        implementation rootProject.ext.deps.androidSupportLibraryCardview
+        implementation rootProject.ext.deps.androidSupportLibraryAppCompact
+
+        implementation rootProject.ext.deps.androidSupportLibraryDesign
+        implementation rootProject.ext.deps.gson
+        implementation rootProject.ext.deps.retrofit
+        implementation rootProject.ext.deps.retrofitGsonConverter
+        implementation rootProject.ext.deps.rxJava
+        implementation rootProject.ext.deps.rxAndroid
+        implementation rootProject.ext.deps.retrofitRxAdapter
+        implementation rootProject.ext.deps.okHttp
+        implementation rootProject.ext.deps.androidSupportLibraryConstraint
+
+        implementation rootProject.ext.deps.multidex
+        api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+        implementation rootProject.ext.deps.glide
+
+        kapt deps.daggerCompiler
+        implementation deps.dagger
+
+        //testing plugins start
+        testImplementation rootProject.ext.deps.junit
+        testImplementation rootProject.ext.deps.mockito.replace(rootProject.ext.mockitoServiceName, 'core')
+        testImplementation rootProject.ext.deps.mockito.replace(rootProject.ext.mockitoServiceName, 'inline')
+        testImplementation rootProject.ext.deps.robolectric
+        testImplementation rootProject.ext.deps.robolectricShadow
+        testImplementation rootProject.ext.deps.robolectricMultidex
+
+        testImplementation("android.arch.core:core-testing:1.0.0", {
+            exclude group: 'com.android.support', module: 'support-compat'
+            exclude group: 'com.android.support', module: 'support-annotations'
+            exclude group: 'com.android.support', module: 'support-core-utils'
+        })
+        //testing plugins end
+        implementation 'javax.annotation:jsr250-api:1.0'
+
+    }
+
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
 }
