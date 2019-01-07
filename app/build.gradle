@@ -100,6 +100,7 @@ android {
 
     dependencies {
         implementation fileTree(dir: 'libs', include: ['*.jar'])
+        implementation project(path: ':uiwidget')
         implementation "android.arch.lifecycle:extensions:1.1.1"
 
         implementation rootProject.ext.deps.androidSupportLibraryCardview
@@ -109,18 +110,17 @@ android {
         implementation rootProject.ext.deps.gson
         implementation rootProject.ext.deps.retrofit
         implementation rootProject.ext.deps.retrofitGsonConverter
+        implementation rootProject.ext.deps.retrofitRxAdapter
+        implementation rootProject.ext.deps.retrofitRxJavaAdapter
         implementation rootProject.ext.deps.rxJava
         implementation rootProject.ext.deps.rxAndroid
-        implementation rootProject.ext.deps.retrofitRxAdapter
         implementation rootProject.ext.deps.okHttp
         implementation rootProject.ext.deps.androidSupportLibraryConstraint
+        implementation rootProject.ext.deps.interceptor
 
         implementation rootProject.ext.deps.multidex
         api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
         implementation rootProject.ext.deps.glide
-
-        kapt deps.daggerCompiler
-        implementation deps.dagger
 
         //testing plugins start
         testImplementation rootProject.ext.deps.junit

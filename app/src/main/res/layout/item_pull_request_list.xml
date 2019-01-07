@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="pullItem"
+            type="com.meesho.assignment.features.pulls.repository.model.Pull" />
+        <variable
+            name="formatter"
+            type="com.meesho.assignment.features.pulls.viewmodel.DateFormatter" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        android:minHeight="60dp"
+        android:padding="@dimen/dp_16">
+
+        <TextView
+            android:id="@+id/titleTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:text="@{pullItem.title}"
+            style="@style/Header"/>
+
+        <TextView
+            android:id="@+id/stateTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/titleTV"
+            android:text="@{String.format(@string/state, pullItem.state)}"
+            style="@style/SubHeader"/>
+
+        <TextView
+            android:id="@+id/user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/stateTV"
+            android:text="@{String.format(@string/created_by, pullItem.user.login)}"
+            style="@style/SubHeader"/>
+        <TextView
+            android:id="@+id/creationDateTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/user"
+            android:text="@{String.format(@string/created_at, formatter.format(pullItem.createdAt))}"
+            style="@style/SubHeader"/>
+
+    </RelativeLayout>
+
+</layout>
