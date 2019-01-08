@@ -23,6 +23,8 @@ class PullsViewModel : ViewModel(), Observer<IResponse<PullResponse>> {
     private val repository = PullsRepository()
     private val formatterManager = PaginationFormatterManager(NextPageFormatter(), PreviousPageFormatter(), LastPageFormatter())
     private var request: PullRequest?=null
+    private val itemsPerPageLimit = 10
+    private val repositoryPathSeparator = "/"
     val formatter = DateFormatter()
 
     init {
@@ -51,12 +53,12 @@ class PullsViewModel : ViewModel(), Observer<IResponse<PullResponse>> {
     }
 
     fun initialize(repositoryPath:String) {
-        val repoInfo = repositoryPath.split("/")
+        val repoInfo = repositoryPath.split(repositoryPathSeparator)
         if(repoInfo.size !=2){
             apiResponse.value=ApiResponse<PullResponse>(InvalidRepositoryException())
             return
         }
-        this.request = PullRequest(repoInfo[0], repoInfo[1],Pagination(1, Integer.MIN_VALUE, Integer.MAX_VALUE, 10))
+        this.request = PullRequest(repoInfo[0], repoInfo[1],Pagination(1, Integer.MIN_VALUE, Integer.MAX_VALUE, itemsPerPageLimit))
         execute()
     }
 }

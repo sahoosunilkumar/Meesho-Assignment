@@ -8,10 +8,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,11 +21,8 @@ import com.meesho.assignment.background.network.api.Status;
 import com.meesho.assignment.background.network.model.IResponse;
 import com.meesho.assignment.databinding.FragmentPullRepositoryBinding;
 import com.meesho.assignment.exceptions.InvalidRepositoryException;
-import com.meesho.assignment.features.pulls.model.Pagination;
-import com.meesho.assignment.features.pulls.model.PullRequest;
 import com.meesho.assignment.features.pulls.model.PullResponse;
 import com.meesho.assignment.features.pulls.repository.model.Pull;
-import com.meesho.assignment.features.pulls.viewmodel.DateFormatter;
 import com.meesho.assignment.features.pulls.viewmodel.PullsViewModel;
 import com.meesho.uiwidget.adapter.AdapterDelegate;
 import com.meesho.uiwidget.adapter.DatabindingAdapter;
@@ -64,6 +59,7 @@ public class PullRepositoryFragment extends Fragment implements Observer<IRespon
         mBinding.setViewModel(mViewModel);
         return mBinding.getRoot();
     }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -89,7 +85,10 @@ public class PullRepositoryFragment extends Fragment implements Observer<IRespon
             }
         });
         mBinding.submitBtn.setOnClickListener(v ->
-                    mViewModel.initialize(mBinding.repoET.getText().toString())
+                {
+                    simpleAdapter.clearItems();
+                    mViewModel.initialize(mBinding.repoET.getText().toString());
+                }
         );
     }
 
@@ -105,15 +104,21 @@ public class PullRepositoryFragment extends Fragment implements Observer<IRespon
     @Override
     public void onChanged(IResponse<PullResponse> pullResponseIResponse) {
         mBinding.setInProgress(pullResponseIResponse.getStatus() == Status.IN_PROGRESS);
-        if(pullResponseIResponse.getStatus() == Status.ERROR){
-            if(pullResponseIResponse.getError() instanceof InvalidRepositoryException){
-                simpleAdapter.clearItems();
-                Toast.makeText(getActivity(), getString(R.string.error_pull_repository), Toast.LENGTH_LONG).show();
-            }else {
-                Toast.makeText(getActivity(), pullResponseIResponse.getError().getMessage(), Toast.LENGTH_LONG).show();
+        if (pullResponseIResponse.getStatus() == Status.ERROR) {
+            if (pullResponseIResponse.getError() instanceof InvalidRepositoryException) {
+                showMessage(getString(R.string.error_pull_repository));
+            } else {
+                showMessage(pullResponseIResponse.getError().getMessage());
             }
-        }else if(pullResponseIResponse.getStatus() == Status.SUCCESS){
+        } else if (pullResponseIResponse.getStatus() == Status.SUCCESS) {
             simpleAdapter.addItems(pullResponseIResponse.getData().getPulls());
+            if (simpleAdapter.getItemCount() == 0) {
+                showMessage(getString(R.string.empty_list));
+            }
         }
+    }
+
+    private void showMessage(String message) {
+        Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 }
